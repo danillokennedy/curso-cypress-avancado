@@ -1,36 +1,49 @@
 describe('Hacker Stories', () => {
-  beforeEach(() => {
-    cy.visit('/')
+  
+  //Exercicio 1 Aula2 - no berforeeach estou interceptando a requisição de loading para
+  //garantir que a pagina abriu. Objetivo: Refatorando o codigo e deixando mais robusto.
 
-    cy.assertLoadingIsShownAndHidden()
-    cy.contains('More').should('be.visible')
+  beforeEach(() => {
+
+   //cy.intercept('GET', '**/search?query=React&page=0').as('loading_ok')
+   //Extra 1 Aula 02. Codigo acima (como inteiro) ou abaixo (como objeto) faz a mesma coisa, porem, o de cima é mais rapido.
+    
+   cy.intercept({
+      method: 'GET',
+      pathname: '**/search',
+      query: {
+        query: 'React',
+        page: '0'
+      }
+    }).as('loading_ok')
+    
+    cy.visit('/')
+    cy.wait('@loading_ok')
   })
 
-  it('shows the footer', () => {
+  it('Mostra o rodapé', () => {
+    
     cy.get('footer')
       .should('be.visible')
       .and('contain', 'Icons made by Freepik from www.flaticon.com')
   })
 
-  context('List of stories', () => {
+  context('Lista de stories', () => {
     // Since the API is external,
     // I can't control what it will provide to the frontend,
     // and so, how can I assert on the data?
     // This is why this test is being skipped.
     // TODO: Find a way to test it out.
-    it.skip('shows the right data for all rendered stories', () => {})
+    it.skip('Mostra os dados corretos para todas as histórias renderizadas', () => {})
 
-    it('shows 20 stories, then the next 20 after clicking "More"', () => {
+    it('Mostrar 20 histórias, depois de clicar em "More", mostrar mais 20', () => {
       cy.get('.item').should('have.length', 20)
-
       cy.contains('More').click()
-
       cy.assertLoadingIsShownAndHidden()
-
       cy.get('.item').should('have.length', 40)
     })
 
-    it('shows only nineteen stories after dimissing the first story', () => {
+    it('Mostra apenas dezenove histórias depois de descartar a primeira história', () => {
       cy.get('.button-small')
         .first()
         .click()
@@ -72,7 +85,7 @@ describe('Hacker Stories', () => {
         .clear()
     })
 
-    it('types and hits ENTER', () => {
+    it('Digita e aperta ENTER', () => {
       cy.get('#search')
         .type(`${newTerm}{enter}`)
 
@@ -86,7 +99,7 @@ describe('Hacker Stories', () => {
         .should('be.visible')
     })
 
-    it('types and clicks the submit button', () => {
+    it('Digita e clica no botão enviar', () => {
       cy.get('#search')
         .type(newTerm)
       cy.contains('Submit')
@@ -103,7 +116,7 @@ describe('Hacker Stories', () => {
     })
 
     context('Last searches', () => {
-      it('searches via the last searched term', () => {
+      it('Pesquisas por meio do último termo pesquisado', () => {
         cy.get('#search')
           .type(`${newTerm}{enter}`)
 
@@ -123,7 +136,7 @@ describe('Hacker Stories', () => {
           .should('be.visible')
       })
 
-      it('shows a max of 5 buttons for the last searched terms', () => {
+      it('Mostrar no máximo de 5 botões para os últimos termos pesquisados', () => {
         const faker = require('faker')
 
         Cypress._.times(6, () => {
